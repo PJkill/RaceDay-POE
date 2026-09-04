@@ -1,3 +1,10 @@
+CREATE DATABASE RaceDay;
+GO
+
+USE RaceDay;
+GO
+
+-- 1. Users Table
 CREATE TABLE Users (
     UserId INT IDENTITY(1,1) PRIMARY KEY,
     Email NVARCHAR(255) NOT NULL UNIQUE,
@@ -8,12 +15,14 @@ CREATE TABLE Users (
 );
 GO
 
+-- 2. Organisers Table
 CREATE TABLE Organisers (
     OrganiserId INT PRIMARY KEY FOREIGN KEY REFERENCES Users(UserId),
     OrganisationName NVARCHAR(100) NULL
 );
 GO
 
+-- 3. Participants Table
 CREATE TABLE Participants (
     ParticipantId INT PRIMARY KEY FOREIGN KEY REFERENCES Users(UserId),
     DateOfBirth DATE NULL,
@@ -21,6 +30,7 @@ CREATE TABLE Participants (
 );
 GO
 
+-- 4. Events Table
 CREATE TABLE Events (
     EventId INT IDENTITY(1,1) PRIMARY KEY,
     OrganiserId INT NOT NULL FOREIGN KEY REFERENCES Organisers(OrganiserId),
@@ -33,6 +43,7 @@ CREATE TABLE Events (
 );
 GO
 
+-- 5. Categories Table
 CREATE TABLE Categories (
     CategoryId INT IDENTITY(1,1) PRIMARY KEY,
     EventId INT NOT NULL FOREIGN KEY REFERENCES Events(EventId),
@@ -42,6 +53,7 @@ CREATE TABLE Categories (
 );
 GO
 
+-- 6. Enrolments Table
 CREATE TABLE Enrolments (
     EnrolmentId INT IDENTITY(1,1) PRIMARY KEY,
     ParticipantId INT NOT NULL FOREIGN KEY REFERENCES Participants(ParticipantId),
@@ -51,6 +63,7 @@ CREATE TABLE Enrolments (
 );
 GO
 
+-- 7. Results Table
 CREATE TABLE Results (
     ResultId INT IDENTITY(1,1) PRIMARY KEY,
     EnrolmentId INT NOT NULL UNIQUE FOREIGN KEY REFERENCES Enrolments(EnrolmentId),
@@ -79,21 +92,21 @@ INSERT INTO Participants (ParticipantId, DateOfBirth, ContactNumber) VALUES
 GO
 
 INSERT INTO Events (OrganiserId, Name, Description, [Date], Location, Status) VALUES
-(1, 'Soweto Marathon', 'Iconic race.', '2026-11-05 06:00:00', 'Johannesburg', 'Upcoming'),
-(1, 'Joburg 10km', 'City run.', '2026-09-15 07:00:00', 'Sandton', 'Upcoming'),
-(2, 'Cape Town Cycle Tour', 'Biggest cycle event.', '2027-03-10 06:30:00', 'Cape Town', 'Upcoming');
+(1, 'Soweto Marathon', 'Iconic race through Soweto.', '2026-11-05 06:00:00', 'Johannesburg', 'Upcoming'),
+(1, 'Joburg 10km City Run', 'Fast 10km race in Sandton.', '2026-09-15 07:00:00', 'Sandton', 'Upcoming'),
+(2, 'Cape Town Cycle Tour', 'World''s largest timed cycling event.', '2027-03-10 06:30:00', 'Cape Town', 'Upcoming');
 GO
 
 INSERT INTO Categories (EventId, Name, Description, EntryFee) VALUES
-(1, 'Full Marathon', '42.2km', 350.00),
-(1, 'Half Marathon', '21.1km', 250.00),
-(1, '10km Fun Run', 'Fun run', 150.00),
-(2, 'Elite Men', 'Competitive', 200.00),
-(2, 'Elite Women', 'Competitive', 200.00),
-(2, 'Open', 'All ages', 150.00),
-(3, 'Elite Men', 'Competitive', 500.00),
-(3, 'Elite Women', 'Competitive', 500.00),
-(3, 'Amateur', 'Recreational', 300.00);
+(1, 'Full Marathon (42.2km)', 'Classic marathon distance.', 350.00),
+(1, 'Half Marathon (21.1km)', 'Challenging half marathon.', 250.00),
+(1, '10km Fun Run', 'Family fun run.', 150.00),
+(2, 'Elite Men', 'Competitive male runners.', 200.00),
+(2, 'Elite Women', 'Competitive female runners.', 200.00),
+(2, 'Open (All Ages)', 'All other participants.', 150.00),
+(3, 'Elite Men', 'Competitive male cyclists.', 500.00),
+(3, 'Elite Women', 'Competitive female cyclists.', 500.00),
+(3, 'Amateur', 'Recreational cyclists.', 300.00);
 GO
 
 INSERT INTO Enrolments (ParticipantId, CategoryId, Status) VALUES
