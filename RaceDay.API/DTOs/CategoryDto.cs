@@ -2,6 +2,9 @@
 
 namespace RaceDay.API.DTOs
 {
+    /// <summary>
+    /// DTO for creating or updating a category within an event.
+    /// </summary>
     public class CategoryDto
     {
         [Required]
