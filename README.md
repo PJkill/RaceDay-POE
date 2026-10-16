@@ -46,3 +46,13 @@ Role-based access is enforced at the API level via `[Authorize(Roles = "...")]`.
 
 ## Video Presentation
 [Watch the Part 2 video here](https://youtu.be/tJjud2T-ChU)
+
+
+## Development Notes
+
+Part 2 was built incrementally with meaningful commits covering:
+- Project setup with EF Core and SQL Server
+- JWT authentication and role-based authorization
+- Full CRUD controllers for Events, Categories, Enrolments, and Results
+- xUnit unit tests covering auth, events, role rejection, and enrolments
+- GitHub Actions CI/CD workflow for automated build and test
