@@ -45,4 +45,4 @@ Role-based access is enforced at the API level via `[Authorize(Roles = "...")]`.
 ![Part 2 CI/CD](part2-ci-success.png)
 
 ## Video Presentation
-[Watch the Part 2 video here](PASTE_YOUR_YOUTUBE_LINK_HERE)
+[Watch the Part 2 video here](https://youtu.be/tJjud2T-ChU)
