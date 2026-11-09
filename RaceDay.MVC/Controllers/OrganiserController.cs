@@ -47,7 +47,7 @@ namespace RaceDay.MVC.Controllers
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var events = JsonSerializer.Deserialize<List<EventViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    return View(events ?? new List<EventViewModel>()); // SAFE NULL CHECK
+                    return View(events ?? new List<EventViewModel>());
                 }
             }
             catch { }
@@ -96,10 +96,17 @@ namespace RaceDay.MVC.Controllers
                 {
                     return RedirectToAction("Dashboard");
                 }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    ModelState.AddModelError("", $"API Error ({response.StatusCode}): {errorContent}");
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Network Error: {ex.Message}");
+            }
 
-            ModelState.AddModelError("", "Failed to create event. Please check your inputs.");
             return View(model);
         }
     }

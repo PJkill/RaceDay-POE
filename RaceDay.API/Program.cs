@@ -8,6 +8,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
@@ -38,13 +39,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Database Connection
 builder.Services.AddDbContext<RaceDayContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
         sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
+// Services
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IBlobService, BlobService>();
 
+// JWT Authentication Configuration
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -77,10 +81,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// THIS IS THE MISSING LINE THAT SERVES THE IMAGES
+// Serve the uploaded images
 app.UseStaticFiles();
 
+// THIS ORDER IS CRITICAL FOR AUTHENTICATION TO WORK
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.Run();
