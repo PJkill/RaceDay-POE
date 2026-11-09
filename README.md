@@ -59,7 +59,7 @@ Part 2 was built incrementally with meaningful commits covering:
 3. Open `http://localhost:8080` in your browser.
 
 ## Video Presentation
-[Watch the Part 3 video here](PASTE_YOUR_YOUTUBE_LINK_HERE)
+[Watch the Part 3 video here](https://youtu.be/agqEbEawWi0)
 - Project setup with EF Core and SQL Server
 - JWT authentication and role-based authorization
 - Full CRUD controllers for Events, Categories, Enrolments, and Results
