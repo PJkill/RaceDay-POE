@@ -2,6 +2,9 @@
 
 namespace RaceDay.API.DTOs
 {
+    /// <summary>
+    /// DTO used when a new user registers with the API.
+    /// </summary>
     public class RegisterDto
     {
         [Required]

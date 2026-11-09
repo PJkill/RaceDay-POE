@@ -2,6 +2,9 @@
 
 namespace RaceDay.API.DTOs
 {
+    /// <summary>
+    /// DTO used when a user logs in to receive a JWT token.
+    /// </summary>
     public class LoginDto
     {
         [Required]
