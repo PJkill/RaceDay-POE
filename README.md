@@ -51,6 +51,15 @@ Role-based access is enforced at the API level via `[Authorize(Roles = "...")]`.
 ## Development Notes
 
 Part 2 was built incrementally with meaningful commits covering:
+
+
+## Running with Docker
+1. Build the image: `docker build -t raceday-mvc -f RaceDay.MVC/Dockerfile .`
+2. Run the container: `docker run -d -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Development --name raceday-container raceday-mvc`
+3. Open `http://localhost:8080` in your browser.
+
+## Video Presentation
+[Watch the Part 3 video here](PASTE_YOUR_YOUTUBE_LINK_HERE)
 - Project setup with EF Core and SQL Server
 - JWT authentication and role-based authorization
 - Full CRUD controllers for Events, Categories, Enrolments, and Results
