@@ -1,0 +1,42 @@
+﻿@model IEnumerable<RaceDay.MVC.Models.EventViewModel>
+@{
+    ViewData["Title"] = "Upcoming Events";
+}
+
+<div class="text-center mt-5 mb-5">
+    <h1 class="display-4 fw-bold text-primary">Welcome to RaceDay</h1>
+    <p class="lead">Find your next race, walk, or cycle event.</p>
+</div>
+
+<div class="row">
+    @foreach (var ev in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100 border-0">
+                @if (!string.IsNullOrEmpty(ev.ImageUrl))
+                {
+                    <!-- Ensure the image loads from the API port (7299) if it's a local upload -->
+                    string imgSrc = ev.ImageUrl.StartsWith("/") ? "https://localhost:7299" + ev.ImageUrl : ev.ImageUrl;
+
+                    <img src="@imgSrc" class="card-img-top" alt="@ev.Name" style="height: 200px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'">
+                }
+                else
+                {
+                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <span>No Image Uploaded</span>
+                    </div>
+                }
+                <div class="card-body">
+                    <h4 class="card-title">@ev.Name</h4>
+                    <h6 class="card-subtitle mb-2 text-muted">@ev.EventType | @ev.Distance</h6>
+                    <p class="card-text">@ev.Description</p>
+                    <hr />
+                    <p class="mb-1"><strong>Location:</strong> @ev.Location</p>
+                    <p class="mb-3"><strong>Date:</strong> @ev.Date.ToString("dd MMM yyyy")</p>
+
+                    <a asp-action="Details" asp-route-id="@ev.EventId" class="btn btn-outline-primary w-100">View Details & Enrol</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

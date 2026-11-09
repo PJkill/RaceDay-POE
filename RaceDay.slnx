@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+  </Folder>
   <Project Path="RaceDay.API/RaceDay.API.csproj" />
+  <Project Path="RaceDay.MVC/RaceDay.MVC.csproj" Id="5b7cb665-1177-48e4-86b2-08b9330541f0" />
   <Project Path="RaceDay.Tests/RaceDay.Tests.csproj" Id="ecc3e7c2-f0ec-4340-9c58-17937ca8b690" />
 </Solution>

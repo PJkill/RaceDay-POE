@@ -5,6 +5,7 @@ using RaceDay.API.Controllers;
 using RaceDay.API.Data;
 using RaceDay.API.DTOs;
 using RaceDay.API.Models;
+using RaceDay.API.Services;
 using System.Collections.Generic;
 using System.Security.Claims;
 using Xunit;
@@ -21,9 +22,15 @@ namespace RaceDay.Tests
             return new RaceDayContext(options);
         }
 
+        // A fake BlobService for testing
+        private IBlobService GetFakeBlobService()
+        {
+            return new FakeBlobService();
+        }
+
         private EventsController GetControllerWithUser(RaceDayContext context, int userId, string role)
         {
-            var controller = new EventsController(context);
+            var controller = new EventsController(context, GetFakeBlobService());
             var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
@@ -59,7 +66,8 @@ namespace RaceDay.Tests
                 EventType = "run"
             };
 
-            var result = await controller.CreateEvent(dto);
+            // Pass null for the image file in the test
+            var result = await controller.CreateEvent(dto, null);
 
             Assert.IsType<OkObjectResult>(result);
             Assert.Equal(1, await context.Events.CountAsync());
@@ -75,7 +83,7 @@ namespace RaceDay.Tests
             context.Events.Add(new Event { Name = "Event 2", OrganiserId = 1, Date = DateTime.Now, Location = "CPT", Distance = "21km", EventType = "walk" });
             await context.SaveChangesAsync();
 
-            var controller = new EventsController(context);
+            var controller = new EventsController(context, GetFakeBlobService());
 
             var result = await controller.GetAllEvents();
 
@@ -88,7 +96,7 @@ namespace RaceDay.Tests
         public async Task GetEvent_InvalidId_ReturnsNotFound()
         {
             var context = GetInMemoryContext();
-            var controller = new EventsController(context);
+            var controller = new EventsController(context, GetFakeBlobService());
 
             var result = await controller.GetEvent(999);
 
@@ -129,6 +137,15 @@ namespace RaceDay.Tests
             var result = await controller.DeleteEvent(1);
 
             Assert.IsType<ForbidResult>(result);
+        }
+    }
+
+    // A dummy class to satisfy the IBlobService dependency in tests
+    public class FakeBlobService : IBlobService
+    {
+        public Task<string> UploadFileAsync(IFormFile file)
+        {
+            return Task.FromResult("http://fakeurl.com/image.jpg");
         }
     }
 }

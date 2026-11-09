@@ -7,6 +7,10 @@ using RaceDay.API.Services;
 
 namespace RaceDay.API.Controllers
 {
+    /// <summary>
+    /// Handles user authentication: registration and login.
+    /// Passwords are hashed with BCrypt. Successful logins return a JWT token.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -20,6 +24,13 @@ namespace RaceDay.API.Controllers
             _jwtService = jwtService;
         }
 
+        /// <summary>
+        /// Registers a new user (Organiser or Participant).
+        /// Hashes the password with BCrypt and creates the role-specific profile.
+        /// </summary>
+        /// <returns>200 OK if registration succeeds; 400 if email exists or role is invalid.</returns>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto request)
         {
@@ -31,10 +42,10 @@ namespace RaceDay.API.Controllers
             if (request.Role != "Organiser" && request.Role != "Participant")
                 return BadRequest("Role must be either 'Organiser' or 'Participant'.");
 
-            // Hash the password
+            // Hash the password using BCrypt
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            // Create the User
+            // Create the User record
             var user = new User
             {
                 Email = request.Email,
@@ -46,16 +57,14 @@ namespace RaceDay.API.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // Create the specific role profile
+            // Create the role-specific profile
             if (user.Role == "Organiser")
             {
-                var organiser = new Organiser { OrganiserId = user.UserId };
-                _context.Organisers.Add(organiser);
+                _context.Organisers.Add(new Organiser { OrganiserId = user.UserId });
             }
-            else if (user.Role == "Participant")
+            else
             {
-                var participant = new Participant { ParticipantId = user.UserId };
-                _context.Participants.Add(participant);
+                _context.Participants.Add(new Participant { ParticipantId = user.UserId });
             }
 
             await _context.SaveChangesAsync();
@@ -63,6 +72,12 @@ namespace RaceDay.API.Controllers
             return Ok(new { message = "User registered successfully!" });
         }
 
+        /// <summary>
+        /// Authenticates a user and returns a JWT token valid for 1 day.
+        /// </summary>
+        /// <returns>200 OK with token and user details; 401 if credentials are invalid.</returns>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto request)
         {
@@ -71,11 +86,11 @@ namespace RaceDay.API.Controllers
             if (user == null)
                 return Unauthorized("Invalid email or password.");
 
-            // Verify the password
+            // Verify the password against the stored hash
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 return Unauthorized("Invalid email or password.");
 
-            // Generate JWT Token
+            // Generate a JWT token
             var token = _jwtService.GenerateToken(user);
 
             return Ok(new

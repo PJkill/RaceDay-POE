@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RaceDay.API.Data;
 using RaceDay.API.DTOs;
 using RaceDay.API.Models;
+using RaceDay.API.Services;
 using System.Security.Claims;
 
 namespace RaceDay.API.Controllers
@@ -13,46 +14,44 @@ namespace RaceDay.API.Controllers
     public class EventsController : ControllerBase
     {
         private readonly RaceDayContext _context;
+        private readonly IBlobService _blobService;
 
-        public EventsController(RaceDayContext context)
+        public EventsController(RaceDayContext context, IBlobService blobService)
         {
             _context = context;
+            _blobService = blobService;
         }
 
-        // GET: api/events - Anyone can view all events
         [HttpGet]
         public async Task<IActionResult> GetAllEvents()
         {
-            var events = await _context.Events
-                .Include(e => e.Categories)
-                .ToListAsync();
+            var events = await _context.Events.Include(e => e.Categories).AsNoTracking().ToListAsync();
             return Ok(events);
         }
 
-        // GET: api/events/{id} - Anyone can view a single event
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEvent(int id)
         {
-            var eventItem = await _context.Events
-                .Include(e => e.Categories)
-                .FirstOrDefaultAsync(e => e.EventId == id);
-
+            var eventItem = await _context.Events.Include(e => e.Categories).AsNoTracking().FirstOrDefaultAsync(e => e.EventId == id);
             if (eventItem == null) return NotFound("Event not found.");
             return Ok(eventItem);
         }
 
-        // POST: api/events - Only Organisers can create
         [HttpPost]
         [Authorize(Roles = "Organiser")]
-        public async Task<IActionResult> CreateEvent(EventDto request)
+        public async Task<IActionResult> CreateEvent([FromForm] EventDto request, IFormFile? imageFile)
         {
-            // Get the logged-in user's OrganiserId from the JWT token
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
 
-            var organiser = await _context.Organisers
-                .FirstOrDefaultAsync(o => o.OrganiserId == int.Parse(userId));
+            var organiser = await _context.Organisers.FirstOrDefaultAsync(o => o.OrganiserId == int.Parse(userId));
             if (organiser == null) return Unauthorized("Only Organisers can create events.");
+
+            string? imageUrl = null;
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                imageUrl = await _blobService.UploadFileAsync(imageFile);
+            }
 
             var newEvent = new Event
             {
@@ -63,7 +62,8 @@ namespace RaceDay.API.Controllers
                 Location = request.Location,
                 Status = request.Status,
                 Distance = request.Distance,
-                EventType = request.EventType
+                EventType = request.EventType,
+                ImageUrl = imageUrl
             };
 
             _context.Events.Add(newEvent);
@@ -72,7 +72,6 @@ namespace RaceDay.API.Controllers
             return Ok(new { message = "Event created successfully!", eventId = newEvent.EventId });
         }
 
-        // PUT: api/events/{id} - Only the owner Organiser can update
         [HttpPut("{id}")]
         [Authorize(Roles = "Organiser")]
         public async Task<IActionResult> UpdateEvent(int id, EventDto request)
@@ -96,7 +95,6 @@ namespace RaceDay.API.Controllers
             return Ok(new { message = "Event updated successfully!" });
         }
 
-        // DELETE: api/events/{id} - Only the owner Organiser can delete
         [HttpDelete("{id}")]
         [Authorize(Roles = "Organiser")]
         public async Task<IActionResult> DeleteEvent(int id)

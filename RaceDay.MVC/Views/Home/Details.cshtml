@@ -1,0 +1,67 @@
+﻿@model RaceDay.MVC.Controllers.EventDetailsViewModel
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger mt-3">@TempData["ErrorMessage"]</div>
+}
+
+<div class="card mt-4 shadow">
+    <div class="card-header bg-primary text-white">
+        <h2>@Model.Name</h2>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">@Model.EventType | @Model.Distance</h5>
+        <p class="card-text">@Model.Description</p>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <p><strong>Date:</strong> @Model.Date.ToString("dd MMM yyyy")</p>
+                <p><strong>Location:</strong> @Model.Location</p>
+            </div>
+        </div>
+
+        <hr />
+
+        <h4 class="mt-4 mb-3">Available Categories</h4>
+
+        @if (Context.Session.GetString("UserRole") == "Participant")
+        {
+            <div class="row">
+                @foreach (var cat in Model.Categories)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-secondary">
+                            <div class="card-body text-center">
+                                <h5>@cat.Name</h5>
+                                <p class="text-success fw-bold">R @cat.EntryFee</p>
+
+                                <form asp-controller="Participant" asp-action="Enrol" method="post">
+                                    <input type="hidden" name="eventId" value="@Model.EventId" />
+                                    <input type="hidden" name="categoryId" value="@cat.CategoryId" />
+                                    <button type="submit" class="btn btn-success w-100">Enrol Now</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else if (Context.Session.GetString("UserRole") == "Organiser")
+        {
+            <div class="alert alert-info">Organisers cannot enrol in events.</div>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                You must be logged in as a Participant to enrol. <a asp-controller="Account" asp-action="Login">Login here</a>.
+            </div>
+        }
+    </div>
+</div>
